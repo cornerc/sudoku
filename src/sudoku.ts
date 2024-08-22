@@ -89,6 +89,7 @@ class Sudoku {
     return field;
   }
 
+  /** フィールドの候補情報を出力する */
   candidateInfo() {
     let field = "";
     for (let row = 0; row < 9; row++) {
@@ -101,6 +102,7 @@ class Sudoku {
     return field;
   }
 
+  /** 候補の更新 */
   updateCandidates() {
     // 行の検査
     for (let row = 0; row < 9; row++) {
@@ -145,7 +147,6 @@ class Sudoku {
     }
 
     // ブロックの検査
-
     for (let BRow = 0; BRow < 3; BRow++) {
       for (let BCol = 0; BCol < 3; BCol++) {
         const uniqueNumMap = new Set<number>();
@@ -174,6 +175,21 @@ class Sudoku {
         }
       }
     }
+  }
+
+  /** 数独を解く */
+  run() {
+    /** 解法1: 候補が１つしかないセルは数字が決定する */
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        const candidates = this.board[row][col].getCandidates();
+        if (candidates.length === 1) {
+          this.board[row][col].setNum(candidates[0]);
+        }
+      }
+    }
+
+    this.updateCandidates();
   }
 }
 

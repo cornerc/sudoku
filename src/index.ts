@@ -27,4 +27,7 @@ const sudoku = new Sudoku([
 // console.log(sudoku.validate());
 
 console.log(sudoku.info());
-console.log(sudoku.candidateInfo());
+for (let i = 0; i < 10; i++) {
+  sudoku.run();
+}
+console.log(sudoku.info());
