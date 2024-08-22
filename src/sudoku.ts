@@ -107,14 +107,14 @@ class Sudoku {
           uniqueNumMap.add(num);
         }
       }
-
       for (let col = 0; col < 9; col++) {
         if (this.board[row][col].getNum() !== undefined) {
           continue;
         }
-        const candidates = this.board[row][col].getCandidates();
         this.board[row][col].setCandidates(
-          candidates.filter((candidate) => !uniqueNumMap.has(candidate))
+          this.board[row][col]
+            .getCandidates()
+            .filter((candidate) => !uniqueNumMap.has(candidate))
         );
       }
     }
@@ -128,14 +128,14 @@ class Sudoku {
           uniqueNumMap.add(num);
         }
       }
-
       for (let row = 0; row < 9; row++) {
         if (this.board[row][col].getNum() !== undefined) {
           continue;
         }
-        const candidates = this.board[row][col].getCandidates();
         this.board[row][col].setCandidates(
-          candidates.filter((candidate) => !uniqueNumMap.has(candidate))
+          this.board[row][col]
+            .getCandidates()
+            .filter((candidate) => !uniqueNumMap.has(candidate))
         );
       }
     }
@@ -149,15 +149,14 @@ class Sudoku {
           uniqueNumMap.add(num);
         }
       });
-
       this.runAllBlock((row, col) => {
         if (this.board[BRow * 3 + row][BCol * 3 + col].getNum() !== undefined) {
           return;
         }
-        const candidates =
-          this.board[BRow * 3 + row][BCol * 3 + col].getCandidates();
         this.board[BRow * 3 + row][BCol * 3 + col].setCandidates(
-          candidates.filter((candidate) => !uniqueNumMap.has(candidate))
+          this.board[BRow * 3 + row][BCol * 3 + col]
+            .getCandidates()
+            .filter((candidate) => !uniqueNumMap.has(candidate))
         );
       });
     });
