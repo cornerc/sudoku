@@ -12,7 +12,7 @@ class Sudoku {
   }
 
   /** 数独のルールに従っているかを検証 */
-  validate() {
+  validate(debug = false) {
     let valid = true;
     // 行の検査
     for (let row = 0; row < 9; row++) {
@@ -24,7 +24,9 @@ class Sudoku {
         }
       }
       if (uniqueNumMap.size !== 9) {
-        console.log(`Row ${row + 1} is invalid`);
+        if (debug) {
+          console.log(`Row ${row + 1} is invalid`);
+        }
         valid = false;
       }
     }
@@ -39,7 +41,9 @@ class Sudoku {
         }
       }
       if (uniqueNumMap.size !== 9) {
-        console.log(`Col ${col + 1} is invalid`);
+        if (debug) {
+          console.log(`Col ${col + 1} is invalid`);
+        }
         valid = false;
       }
     }
@@ -54,7 +58,9 @@ class Sudoku {
         }
       });
       if (uniqueNumMap.size !== 9) {
-        console.log(`Block ${BRow + 1}-${BCol + 1} is invalid`);
+        if (debug) {
+          console.log(`Block ${BRow + 1}-${BCol + 1} is invalid`);
+        }
         valid = false;
       }
     });
@@ -97,7 +103,7 @@ class Sudoku {
   }
 
   /** 候補の更新 */
-  updateCandidates() {
+  private updateCandidates() {
     // 行の検査
     for (let row = 0; row < 9; row++) {
       const uniqueNumMap = new Set<number>();
@@ -171,9 +177,76 @@ class Sudoku {
         this.board[row][col].setNum(candidates[0]);
       }
     });
+    this.updateCandidates();
 
-    /** 解法2: 行・列・ブロックで候補が唯一つの場合数字が決定する */
+    /** 解法2: 行・列・ブロックで候補の数字が唯一つの場合数字が決定する */
 
+    // 行の検査
+    for (let row = 0; row < 9; row++) {
+      let allCandidates: number[] = [];
+      for (let col = 0; col < 9; col++) {
+        allCandidates.push(...this.board[row][col].getCandidates());
+      }
+
+      for (let col = 0; col < 9; col++) {
+        const candidates = this.board[row][col].getCandidates();
+        if (candidates.length === 0) {
+          continue;
+        }
+        for (let candidate of candidates) {
+          if (allCandidates.filter((num) => num === candidate).length === 1) {
+            this.board[row][col].setNum(candidate);
+            break;
+          }
+        }
+      }
+    }
+    this.updateCandidates();
+
+    // 列の検査
+    for (let col = 0; col < 9; col++) {
+      let allCandidates: number[] = [];
+      for (let row = 0; row < 9; row++) {
+        allCandidates.push(...this.board[row][col].getCandidates());
+      }
+
+      for (let row = 0; row < 9; row++) {
+        const candidates = this.board[row][col].getCandidates();
+        if (candidates.length === 0) {
+          continue;
+        }
+        for (let candidate of candidates) {
+          if (allCandidates.filter((num) => num === candidate).length === 1) {
+            this.board[row][col].setNum(candidate);
+            break;
+          }
+        }
+      }
+    }
+    this.updateCandidates();
+
+    // ブロックの検査
+    this.runAllBlock((BRow, BCol) => {
+      let allCandidates: number[] = [];
+      this.runAllBlock((row, col) => {
+        allCandidates.push(
+          ...this.board[BRow * 3 + row][BCol * 3 + col].getCandidates()
+        );
+      });
+      this.runAllBlock((row, col) => {
+        const candidates =
+          this.board[BRow * 3 + row][BCol * 3 + col].getCandidates();
+        if (candidates.length === 0) {
+          return;
+        }
+        for (let candidate of candidates) {
+          if (allCandidates.filter((num) => num === candidate).length === 1) {
+            this.board[BRow * 3 + row][BCol * 3 + col].setNum(candidate);
+            break;
+          }
+        }
+      });
+    });
     this.updateCandidates();
   }
 
