@@ -82,14 +82,19 @@ class Sudoku {
   }
 
   /** フィールドの情報を出力する */
-  info(option: { accent?: { row: number; col: number } } = {}) {
+  info(
+    option: {
+      accent?: { row: number; col: number };
+      showDefault?: boolean;
+    } = {}
+  ) {
     let field = "";
     const divider = "-------------------------------------";
     const boldDivider = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
     const separate = "|";
     const boldSeparate = "┃";
     const breakLine = "\n";
-    const { accent } = option;
+    const { accent, showDefault } = option;
 
     field += boldDivider + breakLine;
     for (let row = 0; row < 9; row++) {
@@ -97,7 +102,8 @@ class Sudoku {
       for (let col = 0; col < 9; col++) {
         rowStr += row === accent?.row && col === accent?.col ? "*" : " ";
         rowStr += this.board[row][col].getNum() || " ";
-        rowStr += " ";
+        rowStr +=
+          showDefault && this.board[row][col].getIsDefault() ? "." : " ";
         rowStr += (col + 1) % 3 === 0 ? boldSeparate : separate;
       }
       field += rowStr + breakLine;
@@ -345,13 +351,16 @@ class Sudoku {
 }
 
 class Cell {
-  private num: number | undefined = undefined;
+  private num: number | undefined;
+  private isDefault: boolean;
   private candidates: number[] = [];
   constructor(initialNum?: number) {
     if (initialNum !== 0 && initialNum !== undefined) {
       this.num = initialNum;
+      this.isDefault = true;
     } else {
       this.num = undefined;
+      this.isDefault = false;
       this.candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     }
   }
@@ -376,6 +385,10 @@ class Cell {
 
   setCandidates(candidates: number[]) {
     this.candidates = candidates;
+  }
+
+  getIsDefault() {
+    return this.isDefault;
   }
 }
 

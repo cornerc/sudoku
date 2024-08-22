@@ -46,4 +46,4 @@ for (let i = 0; i < 100; i++) {
     break;
   }
 }
-sudoku.showSolutionHistory();
+// sudoku.showSolutionHistory();
