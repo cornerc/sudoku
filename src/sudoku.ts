@@ -82,19 +82,20 @@ class Sudoku {
   }
 
   /** フィールドの情報を出力する */
-  info() {
+  info(option: { accent?: { row: number; col: number } } = {}) {
     let field = "";
     const divider = "-------------------------------------";
     const boldDivider = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
     const separate = "|";
     const boldSeparate = "┃";
     const breakLine = "\n";
+    const { accent } = option;
 
     field += boldDivider + breakLine;
     for (let row = 0; row < 9; row++) {
       let rowStr = boldSeparate;
       for (let col = 0; col < 9; col++) {
-        rowStr += " ";
+        rowStr += row === accent?.row && col === accent?.col ? "*" : " ";
         rowStr += this.board[row][col].getNum() || " ";
         rowStr += " ";
         rowStr += (col + 1) % 3 === 0 ? boldSeparate : separate;
@@ -225,7 +226,7 @@ class Sudoku {
           col,
           num: candidates[0],
           solution: SOLUTION1,
-          info: this.info(),
+          info: this.info({ accent: { row, col } }),
         });
       }
     });
@@ -252,7 +253,7 @@ class Sudoku {
               col,
               num: candidate,
               solution: SOLUTION2ROW,
-              info: this.info(),
+              info: this.info({ accent: { row, col } }),
             });
             break;
           }
@@ -281,7 +282,7 @@ class Sudoku {
               col,
               num: candidate,
               solution: SOLUTION2COL,
-              info: this.info(),
+              info: this.info({ accent: { row, col } }),
             });
             break;
           }
@@ -312,7 +313,9 @@ class Sudoku {
               col: BCol * 3 + col,
               num: candidate,
               solution: SOLUTION2BLOCK,
-              info: this.info(),
+              info: this.info({
+                accent: { row: BRow * 3 + row, col: BCol * 3 + col },
+              }),
             });
             break;
           }
@@ -374,14 +377,6 @@ class Cell {
   setCandidates(candidates: number[]) {
     this.candidates = candidates;
   }
-}
-
-function cloneArray(array: Array<any>) {
-  let clone: Array<any> = [];
-  array.forEach((item) =>
-    Array.isArray(item) ? clone.push(cloneArray(item)) : clone.push(item)
-  );
-  return clone;
 }
 
 export default Sudoku;
