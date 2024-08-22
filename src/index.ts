@@ -26,11 +26,24 @@ const sudoku = new Sudoku([
   [1, 3, 7, 0, 0, 2, 9, 0, 0],
 ]);
 
+// 上級2
+// const sudoku = new Sudoku([
+//   [0, 1, 0, 0, 0, 0, 0, 5, 0],
+//   [8, 0, 0, 0, 7, 0, 0, 0, 1],
+//   [0, 0, 4, 0, 5, 0, 3, 0, 0],
+//   [6, 0, 2, 0, 0, 0, 9, 0, 4],
+//   [1, 0, 0, 3, 0, 2, 0, 0, 6],
+//   [0, 9, 0, 4, 0, 8, 0, 1, 0],
+//   [0, 0, 9, 0, 0, 0, 6, 0, 0],
+//   [5, 0, 0, 0, 4, 0, 0, 0, 7],
+//   [2, 0, 0, 0, 3, 0, 0, 0, 9],
+// ]);
+
 console.log(sudoku.info());
 for (let i = 0; i < 100; i++) {
   sudoku.run();
-  console.log(sudoku.info());
-  if (sudoku.validate() === true) {
+  if (sudoku.validate()) {
     break;
   }
 }
+sudoku.showSolutionHistory();

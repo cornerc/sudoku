@@ -1,5 +1,19 @@
+const SOLUTION1 = 1;
+const SOLUTION2ROW = 2;
+const SOLUTION2COL = 3;
+const SOLUTION2BLOCK = 4;
+
 class Sudoku {
   private board: Cell[][] = [];
+
+  // 解法の履歴
+  private solutionHistory: {
+    row: number;
+    col: number;
+    num: number;
+    solution: number;
+    info: string;
+  }[] = [];
 
   constructor(numbers: number[][]) {
     for (let row = 0; row < 9; row++) {
@@ -102,6 +116,37 @@ class Sudoku {
     return field;
   }
 
+  /** 解法の履歴の表示 */
+  showSolutionHistory() {
+    this.solutionHistory.forEach((solution, index) => {
+      let solutionStr = "";
+      switch (solution.solution) {
+        case SOLUTION1:
+          solutionStr = "解法1: 候補が１つしかないセルは数字が決定する";
+          break;
+        case SOLUTION2ROW:
+          solutionStr = "解法2: 行で候補の数字が唯一つの場合数字が決定する";
+          break;
+        case SOLUTION2COL:
+          solutionStr = "解法2: 列で候補の数字が唯一つの場合数字が決定する";
+          break;
+        case SOLUTION2BLOCK:
+          solutionStr =
+            "解法2: ブロックで候補の数字が唯一つの場合数字が決定する";
+          break;
+        default:
+          solutionStr = "解法不明";
+          break;
+      }
+      console.log(
+        `${index}: ${solutionStr}: (${solution.row + 1}, ${
+          solution.col + 1
+        }) = ${solution.num}`
+      );
+      console.log(solution.info);
+    });
+  }
+
   /** 候補の更新 */
   private updateCandidates() {
     // 行の検査
@@ -175,12 +220,18 @@ class Sudoku {
       const candidates = this.board[row][col].getCandidates();
       if (candidates.length === 1) {
         this.board[row][col].setNum(candidates[0]);
+        this.solutionHistory.push({
+          row,
+          col,
+          num: candidates[0],
+          solution: SOLUTION1,
+          info: this.info(),
+        });
       }
     });
     this.updateCandidates();
 
     /** 解法2: 行・列・ブロックで候補の数字が唯一つの場合数字が決定する */
-
     // 行の検査
     for (let row = 0; row < 9; row++) {
       let allCandidates: number[] = [];
@@ -196,6 +247,13 @@ class Sudoku {
         for (let candidate of candidates) {
           if (allCandidates.filter((num) => num === candidate).length === 1) {
             this.board[row][col].setNum(candidate);
+            this.solutionHistory.push({
+              row,
+              col,
+              num: candidate,
+              solution: SOLUTION2ROW,
+              info: this.info(),
+            });
             break;
           }
         }
@@ -218,6 +276,13 @@ class Sudoku {
         for (let candidate of candidates) {
           if (allCandidates.filter((num) => num === candidate).length === 1) {
             this.board[row][col].setNum(candidate);
+            this.solutionHistory.push({
+              row,
+              col,
+              num: candidate,
+              solution: SOLUTION2COL,
+              info: this.info(),
+            });
             break;
           }
         }
@@ -242,6 +307,13 @@ class Sudoku {
         for (let candidate of candidates) {
           if (allCandidates.filter((num) => num === candidate).length === 1) {
             this.board[BRow * 3 + row][BCol * 3 + col].setNum(candidate);
+            this.solutionHistory.push({
+              row: BRow * 3 + row,
+              col: BCol * 3 + col,
+              num: candidate,
+              solution: SOLUTION2BLOCK,
+              info: this.info(),
+            });
             break;
           }
         }
@@ -302,6 +374,14 @@ class Cell {
   setCandidates(candidates: number[]) {
     this.candidates = candidates;
   }
+}
+
+function cloneArray(array: Array<any>) {
+  let clone: Array<any> = [];
+  array.forEach((item) =>
+    Array.isArray(item) ? clone.push(cloneArray(item)) : clone.push(item)
+  );
+  return clone;
 }
 
 export default Sudoku;
