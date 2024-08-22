@@ -227,13 +227,7 @@ class Sudoku {
       const candidates = this.board[row][col].getCandidates();
       if (candidates.length === 1) {
         this.board[row][col].setNum(candidates[0]);
-        this.solutionHistory.push({
-          row,
-          col,
-          num: candidates[0],
-          solution: SOLUTION1,
-          info: this.info({ accent: { row, col } }),
-        });
+        this.pushSolutionHistory(row, col, candidates[0], SOLUTION1);
       }
     });
     this.updateCandidates();
@@ -254,13 +248,7 @@ class Sudoku {
         for (let candidate of candidates) {
           if (allCandidates.filter((num) => num === candidate).length === 1) {
             this.board[row][col].setNum(candidate);
-            this.solutionHistory.push({
-              row,
-              col,
-              num: candidate,
-              solution: SOLUTION2ROW,
-              info: this.info({ accent: { row, col } }),
-            });
+            this.pushSolutionHistory(row, col, candidate, SOLUTION2ROW);
             break;
           }
         }
@@ -283,13 +271,7 @@ class Sudoku {
         for (let candidate of candidates) {
           if (allCandidates.filter((num) => num === candidate).length === 1) {
             this.board[row][col].setNum(candidate);
-            this.solutionHistory.push({
-              row,
-              col,
-              num: candidate,
-              solution: SOLUTION2COL,
-              info: this.info({ accent: { row, col } }),
-            });
+            this.pushSolutionHistory(row, col, candidate, SOLUTION2COL);
             break;
           }
         }
@@ -314,21 +296,35 @@ class Sudoku {
         for (let candidate of candidates) {
           if (allCandidates.filter((num) => num === candidate).length === 1) {
             this.board[BRow * 3 + row][BCol * 3 + col].setNum(candidate);
-            this.solutionHistory.push({
-              row: BRow * 3 + row,
-              col: BCol * 3 + col,
-              num: candidate,
-              solution: SOLUTION2BLOCK,
-              info: this.info({
-                accent: { row: BRow * 3 + row, col: BCol * 3 + col },
-              }),
-            });
+            this.pushSolutionHistory(
+              BRow * 3 + row,
+              BCol * 3 + col,
+              candidate,
+              SOLUTION2BLOCK
+            );
             break;
           }
         }
       });
     });
     this.updateCandidates();
+  }
+
+  private pushSolutionHistory(
+    row: number,
+    col: number,
+    num: number,
+    solution: number
+  ) {
+    this.solutionHistory.push({
+      row,
+      col,
+      num,
+      solution,
+      info: this.info({
+        accent: { row, col },
+      }),
+    });
   }
 
   /** 全てのセルを走査するための汎用関数 */
