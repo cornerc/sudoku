@@ -8,6 +8,7 @@ class Sudoku {
         this.board[row].push(new Cell(numbers[row][col]));
       }
     }
+    this.updateCandidates();
   }
 
   /** 数独のルールに従っているかを検証 */
@@ -65,46 +66,149 @@ class Sudoku {
   }
 
   /** フィールドの情報を出力する */
-  info(table = false) {
+  info() {
     let field = "";
-    if (table) {
-      const divider = "-------------------------------------";
-      const boldDivider = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-      const separate = "|";
-      const boldSeparate = "┃";
-      const breakLine = "\n";
+    const divider = "-------------------------------------";
+    const boldDivider = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+    const separate = "|";
+    const boldSeparate = "┃";
+    const breakLine = "\n";
 
-      field += boldDivider + breakLine;
-      for (let row = 0; row < 9; row++) {
-        let rowStr = boldSeparate;
-        for (let col = 0; col < 9; col++) {
-          rowStr += " ";
-          rowStr += this.board[row][col].getNum() || " ";
-          rowStr += " ";
-          rowStr += (col + 1) % 3 === 0 ? boldSeparate : separate;
-        }
-        field += rowStr + breakLine;
-        field += ((row + 1) % 3 === 0 ? boldDivider : divider) + breakLine;
+    field += boldDivider + breakLine;
+    for (let row = 0; row < 9; row++) {
+      let rowStr = boldSeparate;
+      for (let col = 0; col < 9; col++) {
+        rowStr += " ";
+        rowStr += this.board[row][col].getNum() || " ";
+        rowStr += " ";
+        rowStr += (col + 1) % 3 === 0 ? boldSeparate : separate;
       }
-      return field;
-    } else {
-      return this.board;
+      field += rowStr + breakLine;
+      field += ((row + 1) % 3 === 0 ? boldDivider : divider) + breakLine;
+    }
+    return field;
+  }
+
+  candidateInfo() {
+    let field = "";
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        field += `(${row + 1}, ${col + 1}): ${this.board[row][
+          col
+        ].getCandidates()}\n`;
+      }
+    }
+    return field;
+  }
+
+  updateCandidates() {
+    // 行の検査
+    for (let row = 0; row < 9; row++) {
+      const uniqueNumMap = new Set<number>();
+      for (let col = 0; col < 9; col++) {
+        const num = this.board[row][col].getNum();
+        if (num !== undefined) {
+          uniqueNumMap.add(num);
+        }
+      }
+
+      for (let col = 0; col < 9; col++) {
+        if (this.board[row][col].getNum() !== undefined) {
+          continue;
+        }
+        const candidates = this.board[row][col].getCandidates();
+        this.board[row][col].setCandidates(
+          candidates.filter((candidate) => !uniqueNumMap.has(candidate))
+        );
+      }
+    }
+
+    // 列の検査
+    for (let col = 0; col < 9; col++) {
+      const uniqueNumMap = new Set<number>();
+      for (let row = 0; row < 9; row++) {
+        const num = this.board[row][col].getNum();
+        if (num !== undefined) {
+          uniqueNumMap.add(num);
+        }
+      }
+
+      for (let row = 0; row < 9; row++) {
+        if (this.board[row][col].getNum() !== undefined) {
+          continue;
+        }
+        const candidates = this.board[row][col].getCandidates();
+        this.board[row][col].setCandidates(
+          candidates.filter((candidate) => !uniqueNumMap.has(candidate))
+        );
+      }
+    }
+
+    // ブロックの検査
+
+    for (let BRow = 0; BRow < 3; BRow++) {
+      for (let BCol = 0; BCol < 3; BCol++) {
+        const uniqueNumMap = new Set<number>();
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            const num = this.board[BRow * 3 + row][BCol * 3 + col].getNum();
+            if (num !== undefined) {
+              uniqueNumMap.add(num);
+            }
+          }
+        }
+
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            if (
+              this.board[BRow * 3 + row][BCol * 3 + col].getNum() !== undefined
+            ) {
+              continue;
+            }
+            const candidates =
+              this.board[BRow * 3 + row][BCol * 3 + col].getCandidates();
+            this.board[BRow * 3 + row][BCol * 3 + col].setCandidates(
+              candidates.filter((candidate) => !uniqueNumMap.has(candidate))
+            );
+          }
+        }
+      }
     }
   }
 }
 
 class Cell {
   private num: number | undefined = undefined;
+  private candidates: number[] = [];
   constructor(initialNum?: number) {
-    this.num = initialNum;
+    if (initialNum !== 0 && initialNum !== undefined) {
+      this.num = initialNum;
+    } else {
+      this.num = undefined;
+      this.candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    }
   }
 
   getNum() {
-    if (this.num !== 0 && this.num !== undefined) {
-      return this.num;
+    return this.num;
+  }
+
+  setNum(initialNum?: number) {
+    if (initialNum !== 0 && initialNum !== undefined) {
+      this.num = initialNum;
+      this.candidates = [];
     } else {
-      return undefined;
+      this.num = undefined;
+      this.candidates = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     }
+  }
+
+  getCandidates() {
+    return this.candidates;
+  }
+
+  setCandidates(candidates: number[]) {
+    this.candidates = candidates;
   }
 }
 
