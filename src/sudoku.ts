@@ -66,13 +66,15 @@ class Sudoku {
 
   /** フィールドの情報を出力する */
   info(table = false) {
+    let field = "";
     if (table) {
       const divider = "-------------------------------------";
       const boldDivider = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
       const separate = "|";
       const boldSeparate = "┃";
+      const breakLine = "\n";
 
-      console.log(boldDivider);
+      field += boldDivider + breakLine;
       for (let row = 0; row < 9; row++) {
         let rowStr = boldSeparate;
         for (let col = 0; col < 9; col++) {
@@ -81,11 +83,12 @@ class Sudoku {
           rowStr += " ";
           rowStr += (col + 1) % 3 === 0 ? boldSeparate : separate;
         }
-        console.log(rowStr);
-        console.log((row + 1) % 3 === 0 ? boldDivider : divider);
+        field += rowStr + breakLine;
+        field += ((row + 1) % 3 === 0 ? boldDivider : divider) + breakLine;
       }
+      return field;
     } else {
-      console.log(this.board);
+      return this.board;
     }
   }
 }

@@ -12,5 +12,5 @@ const sudoku = new Sudoku([
   [2, 3, 4, 8, 1, 6, 5, 0, 9],
 ]);
 
-sudoku.info(true);
+console.log(sudoku.info(true));
 console.log(sudoku.validate());
