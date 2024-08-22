@@ -45,23 +45,19 @@ class Sudoku {
     }
 
     // ブロックの検査
-    for (let BRow = 0; BRow < 3; BRow++) {
-      for (let BCol = 0; BCol < 3; BCol++) {
-        const uniqueNumMap = new Set<number>();
-        for (let row = 0; row < 3; row++) {
-          for (let col = 0; col < 3; col++) {
-            const num = this.board[BRow * 3 + row][BCol * 3 + col].getNum();
-            if (num !== undefined) {
-              uniqueNumMap.add(num);
-            }
-          }
+    this.runAllBlock((BRow, BCol) => {
+      const uniqueNumMap = new Set<number>();
+      this.runAllBlock((row, col) => {
+        const num = this.board[BRow * 3 + row][BCol * 3 + col].getNum();
+        if (num !== undefined) {
+          uniqueNumMap.add(num);
         }
-        if (uniqueNumMap.size !== 9) {
-          console.log(`Block ${BRow + 1}-${BCol + 1} is invalid`);
-          valid = false;
-        }
+      });
+      if (uniqueNumMap.size !== 9) {
+        console.log(`Block ${BRow + 1}-${BCol + 1} is invalid`);
+        valid = false;
       }
-    }
+    });
     return valid;
   }
 
@@ -92,13 +88,11 @@ class Sudoku {
   /** フィールドの候補情報を出力する */
   candidateInfo() {
     let field = "";
-    for (let row = 0; row < 9; row++) {
-      for (let col = 0; col < 9; col++) {
-        field += `(${row + 1}, ${col + 1}): ${this.board[row][
-          col
-        ].getCandidates()}\n`;
-      }
-    }
+    this.runAllCell((row, col) => {
+      field += `(${row + 1}, ${col + 1}): ${this.board[row][
+        col
+      ].getCandidates()}\n`;
+    });
     return field;
   }
 
@@ -147,49 +141,59 @@ class Sudoku {
     }
 
     // ブロックの検査
-    for (let BRow = 0; BRow < 3; BRow++) {
-      for (let BCol = 0; BCol < 3; BCol++) {
-        const uniqueNumMap = new Set<number>();
-        for (let row = 0; row < 3; row++) {
-          for (let col = 0; col < 3; col++) {
-            const num = this.board[BRow * 3 + row][BCol * 3 + col].getNum();
-            if (num !== undefined) {
-              uniqueNumMap.add(num);
-            }
-          }
+    this.runAllBlock((BRow, BCol) => {
+      const uniqueNumMap = new Set<number>();
+      this.runAllBlock((row, col) => {
+        const num = this.board[BRow * 3 + row][BCol * 3 + col].getNum();
+        if (num !== undefined) {
+          uniqueNumMap.add(num);
         }
+      });
 
-        for (let row = 0; row < 3; row++) {
-          for (let col = 0; col < 3; col++) {
-            if (
-              this.board[BRow * 3 + row][BCol * 3 + col].getNum() !== undefined
-            ) {
-              continue;
-            }
-            const candidates =
-              this.board[BRow * 3 + row][BCol * 3 + col].getCandidates();
-            this.board[BRow * 3 + row][BCol * 3 + col].setCandidates(
-              candidates.filter((candidate) => !uniqueNumMap.has(candidate))
-            );
-          }
+      this.runAllBlock((row, col) => {
+        if (this.board[BRow * 3 + row][BCol * 3 + col].getNum() !== undefined) {
+          return;
         }
-      }
-    }
+        const candidates =
+          this.board[BRow * 3 + row][BCol * 3 + col].getCandidates();
+        this.board[BRow * 3 + row][BCol * 3 + col].setCandidates(
+          candidates.filter((candidate) => !uniqueNumMap.has(candidate))
+        );
+      });
+    });
   }
 
   /** 数独を解く */
   run() {
     /** 解法1: 候補が１つしかないセルは数字が決定する */
-    for (let row = 0; row < 9; row++) {
-      for (let col = 0; col < 9; col++) {
-        const candidates = this.board[row][col].getCandidates();
-        if (candidates.length === 1) {
-          this.board[row][col].setNum(candidates[0]);
-        }
+    this.runAllCell((row, col) => {
+      const candidates = this.board[row][col].getCandidates();
+      if (candidates.length === 1) {
+        this.board[row][col].setNum(candidates[0]);
       }
-    }
+    });
+
+    /** 解法2: 行・列・ブロックで候補が唯一つの場合数字が決定する */
 
     this.updateCandidates();
+  }
+
+  /** 全てのセルを走査するための汎用関数 */
+  private runAllCell(callBack: (row: number, col: number) => void) {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        callBack(row, col);
+      }
+    }
+  }
+
+  /** 全てのブロックを走査するための汎用関数 */
+  private runAllBlock(callBack: (row: number, col: number) => void) {
+    for (let BRow = 0; BRow < 3; BRow++) {
+      for (let BCol = 0; BCol < 3; BCol++) {
+        callBack(BRow, BCol);
+      }
+    }
   }
 }
 
